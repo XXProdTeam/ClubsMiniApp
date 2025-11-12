@@ -1,6 +1,7 @@
 import type { UserRole } from './user'
 
 export interface EventResponse {
+	event_id: number
 	name: string
 	description: string | null
 	place: string | null
@@ -16,6 +17,7 @@ export interface EventsReponse {
 }
 
 export interface EventDTO {
+	eventId: number
 	name: string
 	description: string | null
 	place: string | null
