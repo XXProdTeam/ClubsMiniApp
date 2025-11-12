@@ -5,13 +5,19 @@ import App from './App.jsx'
 import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import dayjs from 'dayjs'
+import { AuthProvider } from './contexts/AuthContext'
 import 'dayjs/locale/ru'
+import { QrCodeProvider } from './contexts/QRContext.js'
 dayjs.locale('ru')
 
 const Root = () => (
 	<MaxUI platform='ios' colorScheme='dark'>
 		<BrowserRouter>
-			<App />
+			<AuthProvider>
+				<QrCodeProvider>
+					<App />
+				</QrCodeProvider>
+			</AuthProvider>
 		</BrowserRouter>
 	</MaxUI>
 )

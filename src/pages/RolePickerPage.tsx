@@ -26,14 +26,14 @@ const RolePickerPage = () => {
 						<Button
 							variant='outline'
 							className='w-full text-xl px-10 py-7 rounded-2xl'
-							onClick={() => navigate('/participant')}
+							onClick={() => navigate('/me')}
 						>
 							Абитуриент
 						</Button>
 						<Button
 							variant='outline'
 							className='w-full text-xl px-10 py-7 rounded-2xl'
-							onClick={() => navigate('/participant')}
+							onClick={() => navigate('/me')}
 						>
 							Студент
 						</Button>

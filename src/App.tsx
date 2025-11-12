@@ -1,5 +1,5 @@
 import { Routes, Route } from 'react-router-dom'
-import MainParticipantPage from './pages/MainParticipantPage'
+import EventMePage from './pages/EventMePage'
 import RolePickerPage from './pages/RolePickerPage'
 import { ThemeProvider } from '@/components/theme-provider'
 import MainAdminPage from './pages/MainAdminPage'
@@ -14,7 +14,7 @@ const App = () => (
 				<Header></Header>
 			</div>
 			<Routes>
-				<Route path='/me' element={<MainParticipantPage />} />
+				<Route path='/me' element={<EventMePage />} />
 				<Route path='/admin' element={<MainAdminPage />} />
 				<Route path='/' element={<RolePickerPage />} />
 				<Route path='/event/:eventId' element={<EventDetailPage />} />

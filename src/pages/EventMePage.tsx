@@ -1,14 +1,25 @@
+import api from '@/api/api'
 import EventCard from '@/components/Event'
 import NavContainer from '@/components/nav/NavContainer'
 import { NavDiscovery } from '@/components/nav/NavDiscovery'
 import QRCode from '@/components/nav/NavQRCode'
 import { Button } from '@/components/ui/button'
+import type { EventDTO } from '@/dto/event'
 import { eventMock1, eventMock2, qrMock } from '@/mock'
 import { Container } from '@maxhub/max-ui'
 import { CalendarHeartIcon, CalendarPlusIcon } from 'lucide-react'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
-const MainParticipantPage = () => {
-	const events = [eventMock1, eventMock2, eventMock1, eventMock2]
+const EventMePage = () => {
+	const navigate = useNavigate()
+
+	const [events, setEvents] = useState<EventDTO[]>([])
+
+	const fetchMeEvents = async () => {
+		const response = await api.get('/users/events')
+	}
+
 	return (
 		<>
 			<Container className='bg-black'>
@@ -38,7 +49,9 @@ const MainParticipantPage = () => {
 								className='stroke-zinc-400'
 							/>
 							<p className='text-zinc-400 text-center'>Здесь пока ничего нет</p>
-							<Button>Найти мероприятия</Button>
+							<Button onClick={() => navigate('/events')}>
+								Найти мероприятия
+							</Button>
 						</div>
 					)}
 				</div>
@@ -51,4 +64,4 @@ const MainParticipantPage = () => {
 	)
 }
 
-export default MainParticipantPage
+export default EventMePage
