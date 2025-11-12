@@ -1,12 +1,5 @@
-import {
-	Panel,
-	Grid,
-	Container,
-	Flex,
-	Avatar,
-	Typography,
-} from '@maxhub/max-ui'
-import { Routes, Route, Link } from 'react-router-dom'
+import { Container, Flex, Avatar, Typography } from '@maxhub/max-ui'
+import { Link } from 'react-router-dom'
 
 const MainAdminPage = () => (
 	<Container>

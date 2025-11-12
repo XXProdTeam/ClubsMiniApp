@@ -3,6 +3,7 @@ import { MaxUI } from '@maxhub/max-ui'
 import '@maxhub/max-ui/dist/styles.css'
 import App from './App.jsx'
 import { BrowserRouter } from 'react-router-dom'
+import './index.css'
 
 const Root = () => (
 	<MaxUI platform='ios' colorScheme='dark'>
