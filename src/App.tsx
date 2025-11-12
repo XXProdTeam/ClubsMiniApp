@@ -3,14 +3,24 @@ import MainParticipantPage from './pages/MainParticipantPage'
 import RolePickerPage from './pages/RolePickerPage'
 import { ThemeProvider } from '@/components/theme-provider'
 import MainAdminPage from './pages/MainAdminPage'
+import EventDetailPage from './pages/EventDetailPage'
+import Header from './components/Header'
+import EventDiscoveryPage from './pages/EventDiscoveryPage'
 
 const App = () => (
 	<ThemeProvider defaultTheme='dark' storageKey='vite-ui-theme'>
-		<Routes>
-			<Route path='/participant' element={<MainParticipantPage />} />
-			<Route path='/admin' element={<MainAdminPage />} />
-			<Route path='/' element={<RolePickerPage />} />
-		</Routes>
+		<div className='bg-black'>
+			<div className='mx-2 my-4'>
+				<Header></Header>
+			</div>
+			<Routes>
+				<Route path='/me' element={<MainParticipantPage />} />
+				<Route path='/admin' element={<MainAdminPage />} />
+				<Route path='/' element={<RolePickerPage />} />
+				<Route path='/event/:eventId' element={<EventDetailPage />} />
+				<Route path='/events' element={<EventDiscoveryPage />} />
+			</Routes>
+		</div>
 	</ThemeProvider>
 )
 

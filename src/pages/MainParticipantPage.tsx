@@ -1,7 +1,7 @@
 import EventCard from '@/components/Event'
-import EventsDiscovery from '@/components/EventsDiscovery'
-import Header from '@/components/Header'
-import QRCode from '@/components/QRCode'
+import NavContainer from '@/components/nav/NavContainer'
+import { NavDiscovery } from '@/components/nav/NavDiscovery'
+import QRCode from '@/components/nav/NavQRCode'
 import { Button } from '@/components/ui/button'
 import { eventMock1, eventMock2, qrMock } from '@/mock'
 import { Container } from '@maxhub/max-ui'
@@ -9,12 +9,10 @@ import { CalendarHeartIcon, CalendarPlusIcon } from 'lucide-react'
 
 const MainParticipantPage = () => {
 	const events = [eventMock1, eventMock2, eventMock1, eventMock2]
-	const qr = qrMock
 	return (
 		<>
-			<Container className='mt-5 bg-black'>
+			<Container className='bg-black'>
 				<div className='flex flex-wrap items-center gap-4 pb-24'>
-					<Header />
 					<div className='flex items-center gap-2 px-5'>
 						<CalendarHeartIcon
 							size={24}
@@ -44,11 +42,11 @@ const MainParticipantPage = () => {
 						</div>
 					)}
 				</div>
+				<NavContainer>
+					<NavDiscovery />
+					<QRCode qr={qrMock} firstName='Егор' lastName='Фадеев' />
+				</NavContainer>
 			</Container>
-			<div className='fixed bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 z-50'>
-				<EventsDiscovery events={events} />
-				<QRCode qr={qr} firstName='Егор' lastName='Фадеев' />
-			</div>
 		</>
 	)
 }

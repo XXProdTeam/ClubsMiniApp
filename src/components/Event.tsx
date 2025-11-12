@@ -3,8 +3,11 @@ import { Badge } from './ui/badge'
 import dayjs from 'dayjs'
 import { ImageIcon } from 'lucide-react'
 import { Button } from './ui/button'
+import { useNavigate } from 'react-router-dom'
 
 const EventCard = (event: EventDTO) => {
+	const navigate = useNavigate()
+
 	const formattedStartTime = dayjs(event.startTime).format('HH:mm')
 	const formattedEndTime = dayjs(event.endTime).format('HH:mm')
 	const formattedDate = dayjs(event.startTime).format('D MMMM')
@@ -36,7 +39,9 @@ const EventCard = (event: EventDTO) => {
 					{event.description}
 				</p>
 			</div>
-			<Button>Подробнее</Button>
+			<Button onClick={() => navigate(`/event/${event.eventId}`)}>
+				Подробнее
+			</Button>
 		</div>
 	)
 }

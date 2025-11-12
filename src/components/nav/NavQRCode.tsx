@@ -9,6 +9,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { QrCode } from 'lucide-react'
 import type { QrDTO } from '@/dto/qr'
+import NavItem from './NavItem'
 
 const QRCode = ({
 	qr,
@@ -21,9 +22,9 @@ const QRCode = ({
 }) => (
 	<Drawer>
 		<DrawerTrigger asChild>
-			<Button variant='secondary' className='size-18 border-1 rounded-3xl'>
+			<NavItem>
 				<QrCode className='size-8' />
-			</Button>
+			</NavItem>
 		</DrawerTrigger>
 
 		<DrawerContent className='bg-zinc-900 border-zinc-800 text-zinc-200'>
