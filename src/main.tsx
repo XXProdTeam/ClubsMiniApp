@@ -11,17 +11,19 @@ import { QrCodeProvider } from './contexts/QRContext.js'
 import { Toaster } from 'sonner'
 dayjs.locale('ru')
 
-const Root = () => (
-	<MaxUI platform='ios' colorScheme='dark'>
-		<BrowserRouter>
-			<AuthProvider>
-				<QrCodeProvider>
-					<App />
-					<Toaster />
-				</QrCodeProvider>
-			</AuthProvider>
-		</BrowserRouter>
-	</MaxUI>
-)
+const Root = () => {
+	return (
+		<MaxUI platform='ios' colorScheme='dark'>
+			<BrowserRouter>
+				<AuthProvider>
+					<QrCodeProvider>
+						<App />
+						<Toaster />
+					</QrCodeProvider>
+				</AuthProvider>
+			</BrowserRouter>
+		</MaxUI>
+	)
+}
 
 createRoot(document.getElementById('root')!).render(<Root />)

@@ -4,15 +4,18 @@ import {
 	useState,
 	useEffect,
 	type ReactNode,
+	useCallback,
 } from 'react'
 import api from '@/api/api'
 import { useNavigate } from 'react-router-dom'
-import type { UserDTO } from '@/dto/user'
+import type { UserDTO, UserRole } from '@/dto/user'
+import { useWebApp } from '@/hooks/useWebApp'
 
 interface AuthContextType {
 	user: UserDTO | null
 	loading: boolean
 	error: string | null
+	updateUserRole: (role: UserRole) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -23,27 +26,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [loading, setLoading] = useState<boolean>(true)
 	const [error, setError] = useState<string | null>(null)
 
+	const { webApp } = useWebApp()
+
 	useEffect(() => {
+		const userMaxId = webApp?.initDataUnsafe?.user?.id
+
 		const initializeUserSession = async () => {
 			try {
-				const registrationData = {
-					user_id: 98368258,
-					first_name: 'Егор',
-					last_name: 'Фадеев',
-					chat_id: 22931098,
-					role: 'student',
+				setLoading(true)
+				console.log()
+				const response = await api.get<UserDTO>(
+					`/users/me?user_id=${userMaxId}`
+				)
+				setUser(response.data)
+				if (response.data.role != null) {
+					navigate('/me')
 				}
 
-				await api.post('/users/register', registrationData)
-			} catch (err: any) {
-				/* empty */
-			}
-			try {
-				setLoading(true)
-
-				const response = await api.get<UserDTO>('/users/me?user_id=98368258')
-				setUser(response.data)
-				navigate('/me')
 				setError(null)
 			} catch (err: any) {
 				console.error('Authentication failed:', err)
@@ -55,9 +54,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		}
 
 		initializeUserSession()
-	}, [])
+	}, [webApp])
 
-	const value = { user, loading, error }
+	const updateUserRole = useCallback(
+		async (role: UserRole) => {
+			if (!user) {
+				throw new Error('User is not authenticated')
+			}
+			try {
+				await api.post(`/users/role/${role}?user_id=${user.user_id}`)
+				const updatedUser = { ...user, role: role }
+				setUser(updatedUser)
+			} catch (err) {
+				console.error('Failed to update user role:', err)
+				throw err
+			}
+		},
+		[user]
+	)
+
+	const value = { user, loading, error, updateUserRole }
 
 	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

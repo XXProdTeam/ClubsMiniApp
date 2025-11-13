@@ -1,48 +1,68 @@
+import api from '@/api/api'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { useAuth } from '@/contexts/AuthContext'
+import { UserRole } from '@/dto/user'
+import { useWebApp } from '@/hooks/useWebApp'
 import { Container } from '@maxhub/max-ui'
+import { CalendarDaysIcon } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 const RolePickerPage = () => {
 	const navigate = useNavigate()
 
+	const { user, updateUserRole } = useAuth()
+
+	const chooseRole = async (role: UserRole) => {
+		updateUserRole(role)
+	}
+
 	return (
 		<Container className='mt-10 bg-black'>
 			<div className='flex flex-wrap flex-col items-center gap-12'>
-				<div className='flex flex-wrap flex-col items-center gap-6'>
-					<Avatar className='size-48'>
-						<AvatarFallback className='text-4xl'>CL</AvatarFallback>
-					</Avatar>
+				<div className='flex flex-wrap flex-col items-center gap-3'>
+					<div className='p-10 border-2 rounded-full'>
+						<CalendarDaysIcon className='stroke-white' size={40} />
+					</div>
 					<div className='flex flex-wrap flex-col items-center'>
-						<h1 className='scroll-m-20 text-center text-4xl font-extrabold tracking-tight text-balance text-white'>
+						<h1 className='scroll-m-20 text-center text-3xl font-extrabold tracking-tight text-balance text-white'>
 							Добро пожаловать в Clubs
 						</h1>
-						<p className='text-xl'>Кто вы?</p>
+						<p className='text-l'>Похоже, что вы...</p>
 					</div>
 				</div>
 
-				<div className='flex flex-wrap flex-col items-center gap-5'>
-					<div className='flex flex-wrap flex-col items-center gap-3'>
+				<div className='flex flex-wrap flex-col items-center gap-3'>
+					<div className='flex flex-wrap flex-col items-center gap-2'>
 						<Button
 							variant='outline'
-							className='w-full text-xl px-10 py-7 rounded-2xl'
-							onClick={() => navigate('/me')}
+							className='w-full px-10 py-6 rounded-2xl'
+							onClick={() => {
+								chooseRole(UserRole.applicant)
+								navigate('/me')
+							}}
 						>
 							Абитуриент
 						</Button>
 						<Button
 							variant='outline'
-							className='w-full text-xl px-10 py-7 rounded-2xl'
-							onClick={() => navigate('/me')}
+							className='w-full px-10 py-6 rounded-2xl'
+							onClick={() => {
+								chooseRole(UserRole.student)
+								navigate('/me')
+							}}
 						>
 							Студент
 						</Button>
 					</div>
-					<p className='text-gray-500'> - или - </p>
+					<p className='text-gray-500 text-l'> - или - </p>
 					<Button
 						variant='default'
-						className='w-full text-xl px-10 py-7 rounded-2xl'
-						onClick={() => navigate('/admin')}
+						className='w-full px-10 py-6 rounded-2xl'
+						onClick={() => {
+							chooseRole(UserRole.admin)
+							navigate('/admin')
+						}}
 					>
 						Организатор
 					</Button>
