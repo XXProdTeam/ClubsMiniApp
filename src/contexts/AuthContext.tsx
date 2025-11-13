@@ -6,19 +6,11 @@ import {
 	type ReactNode,
 } from 'react'
 import api from '@/api/api'
-import type { UserRole } from '@/dto/user'
 import { useNavigate } from 'react-router-dom'
-
-interface User {
-	user_id: number
-	first_name: string
-	last_name: string
-	chat_id: number
-	role: UserRole
-}
+import type { UserDTO } from '@/dto/user'
 
 interface AuthContextType {
-	user: User | null
+	user: UserDTO | null
 	loading: boolean
 	error: string | null
 }
@@ -27,7 +19,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const navigate = useNavigate()
-	const [user, setUser] = useState<User | null>(null)
+	const [user, setUser] = useState<UserDTO | null>(null)
 	const [loading, setLoading] = useState<boolean>(true)
 	const [error, setError] = useState<string | null>(null)
 
@@ -35,10 +27,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		const initializeUserSession = async () => {
 			try {
 				const registrationData = {
-					user_id: 42,
+					user_id: 98368258,
 					first_name: 'Егор',
 					last_name: 'Фадеев',
-					chat_id: 10,
+					chat_id: 22931098,
 					role: 'student',
 				}
 
@@ -49,7 +41,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 			try {
 				setLoading(true)
 
-				const response = await api.get<User>('/users/me?user_id=42')
+				const response = await api.get<UserDTO>('/users/me?user_id=98368258')
 				setUser(response.data)
 				navigate('/me')
 				setError(null)

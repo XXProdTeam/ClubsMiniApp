@@ -38,7 +38,7 @@ const EventsDiscovery = ({ events }: { events: EventDTO[] }) => (
 				<div className='flex-grow overflow-y-auto mt-5 mb-10 pb-4'>
 					<div className='flex flex-col gap-4'>
 						{events.map(event => (
-							<EventCard key={event.eventId} {...event} />
+							<EventCard key={event.event_id} {...event} />
 						))}
 					</div>
 				</div>

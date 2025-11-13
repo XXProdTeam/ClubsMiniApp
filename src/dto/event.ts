@@ -1,29 +1,28 @@
 import type { UserRole } from './user'
 
-export interface EventResponse {
+export interface EventDTO {
 	event_id: number
 	name: string
 	description: string | null
 	place: string | null
-	start_time: string
-	end_time: string
-	images: string[]
-	audience: string[]
+	start_time: Date
+	end_time: Date
+	image_base64_list: string[]
+	audience: UserRole[]
 	member_limit: number
+	num_members: number
 }
 
-export interface EventsReponse {
-	events: EventResponse[]
-}
-
-export interface EventDTO {
-	eventId: number
+export interface EventUserDTO {
+	event_id: number
 	name: string
 	description: string | null
 	place: string | null
-	startTime: Date
-	endTime: Date
-	images: string[]
+	start_time: Date
+	end_time: Date
+	image_base64_list: string[]
 	audience: UserRole[]
-	memberLimit: number
+	member_limit: number
+	num_members: number
+	is_member: boolean
 }

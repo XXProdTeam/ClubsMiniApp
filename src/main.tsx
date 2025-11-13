@@ -8,6 +8,7 @@ import dayjs from 'dayjs'
 import { AuthProvider } from './contexts/AuthContext'
 import 'dayjs/locale/ru'
 import { QrCodeProvider } from './contexts/QRContext.js'
+import { Toaster } from 'sonner'
 dayjs.locale('ru')
 
 const Root = () => (
@@ -16,6 +17,7 @@ const Root = () => (
 			<AuthProvider>
 				<QrCodeProvider>
 					<App />
+					<Toaster />
 				</QrCodeProvider>
 			</AuthProvider>
 		</BrowserRouter>

@@ -4,27 +4,42 @@ import NavContainer from '@/components/nav/NavContainer'
 import { NavDiscovery } from '@/components/nav/NavDiscovery'
 import QRCode from '@/components/nav/NavQRCode'
 import { Button } from '@/components/ui/button'
+import { useAuth } from '@/contexts/AuthContext'
 import type { EventDTO } from '@/dto/event'
-import { eventMock1, eventMock2, qrMock } from '@/mock'
 import { Container } from '@maxhub/max-ui'
 import { CalendarHeartIcon, CalendarPlusIcon } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const EventMePage = () => {
 	const navigate = useNavigate()
 
+	const { user } = useAuth()
 	const [events, setEvents] = useState<EventDTO[]>([])
+	const [loading, setLoading] = useState<boolean>(true)
+	const [error, setError] = useState<string | null>(null)
 
-	const fetchMeEvents = async () => {
-		const response = await api.get('/users/events')
-	}
-
+	useEffect(() => {
+		const fetchMeEvents = async () => {
+			try {
+				const response = await api.get<EventDTO[]>(
+					`/users/me/events?user_id=${user?.user_id}`
+				)
+				setEvents(response.data)
+			} catch (err: any) {
+				console.error('Authentication failed:', err)
+				setError(err.message || 'Произошла ошибка при аутентификации')
+			} finally {
+				setLoading(false)
+			}
+		}
+		fetchMeEvents()
+	}, [user])
 	return (
 		<>
 			<Container className='bg-black'>
 				<div className='flex flex-wrap items-center gap-4 pb-24'>
-					<div className='flex items-center gap-2 px-5'>
+					<div className='flex items-center gap-2 px-2'>
 						<CalendarHeartIcon
 							size={24}
 							strokeWidth={2}
@@ -36,9 +51,9 @@ const EventMePage = () => {
 					</div>
 
 					{events.length > 0 ? (
-						<div className='flex flex-col gap-4'>
+						<div className='flex flex-col w-full gap-4'>
 							{events.map(event => (
-								<EventCard key={event.eventId} {...event} />
+								<EventCard key={event.event_id} {...event} />
 							))}
 						</div>
 					) : (
@@ -57,7 +72,7 @@ const EventMePage = () => {
 				</div>
 				<NavContainer>
 					<NavDiscovery />
-					<QRCode qr={qrMock} firstName='Егор' lastName='Фадеев' />
+					<QRCode />
 				</NavContainer>
 			</Container>
 		</>
