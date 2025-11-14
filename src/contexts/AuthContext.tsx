@@ -8,7 +8,7 @@ import {
 } from 'react'
 import api from '@/api/api'
 import { useNavigate } from 'react-router-dom'
-import type { UserDTO, UserRole } from '@/dto/user'
+import { UserRole, type UserDTO } from '@/dto/user'
 import { useWebApp } from '@/hooks/useWebApp'
 
 interface AuthContextType {
@@ -26,7 +26,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [loading, setLoading] = useState<boolean>(true)
 	const [error, setError] = useState<string | null>(null)
 
-	const { userMax } = useWebApp()
+	//const { userMax } = useWebApp()
+	const userMax = {
+		id: 98368258,
+	}
+
+	const rolePageMap = {
+		[UserRole.student]: '/me',
+		[UserRole.applicant]: '/me',
+		[UserRole.admin]: '/admin',
+	}
 
 	useEffect(() => {
 		const initializeUserSession = async () => {
@@ -38,7 +47,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 				)
 				setUser(response.data)
 				if (response.data.role != null) {
-					navigate('/me')
+					navigate(rolePageMap[response.data.role])
 				}
 
 				setError(null)
@@ -52,7 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		}
 
 		initializeUserSession()
-	}, [userMax])
+	}, [])
 
 	const updateUserRole = useCallback(
 		async (role: UserRole) => {

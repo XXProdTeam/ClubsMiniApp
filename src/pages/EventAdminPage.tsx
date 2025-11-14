@@ -1,19 +1,18 @@
 import { Container } from '@maxhub/max-ui'
 import { useNavigate } from 'react-router-dom'
 import { CalendarClockIcon, CompassIcon } from 'lucide-react'
-import EventCard from '@/components/Event'
 import { Input } from '@/components/ui/input'
 import { useEffect, useState } from 'react'
 import NavContainer from '@/components/nav/NavContainer'
-import { NavMe } from '@/components/nav/NavMe'
-import QRCode from '@/components/nav/NavQRCode'
 import type { EventDTO } from '@/dto/event'
 import { useAuth } from '@/contexts/AuthContext'
 import api from '@/api/api'
 import EventList from '@/components/EventList'
 import IconHeader from '@/components/IconHeader'
+import { QRScan } from '@/components/nav/NavQRScan'
+import { NavAddEvent } from '@/components/nav/NavAddEvent'
 
-const EventDiscoveryPage = () => {
+const EventAdminPage = () => {
 	const navigate = useNavigate()
 
 	const [searchQuery, setSearchQuery] = useState('')
@@ -30,9 +29,7 @@ const EventDiscoveryPage = () => {
 	useEffect(() => {
 		const fetchEvents = async () => {
 			try {
-				const response = await api.get<EventDTO[]>(
-					`/users/events?user_id=${user?.user_id}`
-				)
+				const response = await api.get<EventDTO[]>(`/events/`)
 				setEvents(response.data)
 			} catch (err: any) {
 				console.error('Authentication failed:', err)
@@ -47,7 +44,7 @@ const EventDiscoveryPage = () => {
 	return (
 		<Container className='bg-black'>
 			<div className='flex flex-wrap items-center gap-4 pb-24'>
-				<IconHeader text='Актуальные события' icon={CompassIcon} />
+				<IconHeader text='Текущие события' icon={CompassIcon} />
 				<Input
 					placeholder='Название мероприятия...'
 					onChange={e => setSearchQuery(e.target.value)}
@@ -67,11 +64,10 @@ const EventDiscoveryPage = () => {
 				</EventList>
 			</div>
 			<NavContainer>
-				<NavMe />
-				<QRCode />
+				<NavAddEvent />
 			</NavContainer>
 		</Container>
 	)
 }
 
-export default EventDiscoveryPage
+export default EventAdminPage

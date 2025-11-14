@@ -84,7 +84,7 @@ const EventDetailPage = () => {
 							{event.image_base64_list.map((image_base64, index) => (
 								<CarouselItem key={index}>
 									<img
-										className='border-1 rounded-2xl h-60 object-cover'
+										className='border-1 rounded-2xl h-60 object-cover w-full'
 										src={base64ToImageUrl(image_base64)}
 									></img>
 								</CarouselItem>
