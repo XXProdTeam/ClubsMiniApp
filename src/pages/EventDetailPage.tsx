@@ -33,6 +33,21 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
+import { motion, AnimatePresence } from 'framer-motion'
+
+const fadeInScale = {
+	initial: { opacity: 0, scale: 0.95 },
+	animate: { opacity: 1, scale: 1, transition: { duration: 0.4 } },
+	exit: { opacity: 0, scale: 0.95, transition: { duration: 0.3 } },
+}
+
+const staggerContainer = {
+	animate: {
+		transition: {
+			staggerChildren: 0.1,
+		},
+	},
+}
 
 const EventDetailPage = () => {
 	useBackButton(true)
@@ -40,7 +55,6 @@ const EventDetailPage = () => {
 	const { eventId } = useParams<{ eventId: string }>()
 
 	const [event, setEvent] = useState<EventUserDTO>(eventMock1)
-
 	const { user } = useAuth()
 
 	const formattedStartTime = dayjs(event.start_time).format('HH:mm')
@@ -73,7 +87,6 @@ const EventDetailPage = () => {
 	}
 
 	const [isExporting, setIsExporting] = useState(false)
-
 	const exportToCalendar = async () => {
 		if (isExporting) return
 		setIsExporting(true)
@@ -101,33 +114,37 @@ const EventDetailPage = () => {
 
 	return (
 		<Container className='bg-black'>
-			<div className='w-full flex flex-col gap-3 mb-30'>
-				{event.image_base64_list.length > 0 ? (
-					<Carousel
-						className=''
-						plugins={[
-							Autoplay({
-								delay: 2000,
-							}),
-						]}
-					>
-						<CarouselContent>
-							{event.image_base64_list.map((image_base64, index) => (
-								<CarouselItem key={index}>
-									<img
-										className='border-1 rounded-2xl h-60 object-cover w-full'
-										src={base64ToImageUrl(image_base64)}
-									></img>
-								</CarouselItem>
-							))}
-						</CarouselContent>
-					</Carousel>
-				) : (
-					<div className='flex rounded-xl border-1 h-60 items-center justify-center'>
-						<ImageIcon className='stroke-white' />
-					</div>
-				)}
-				<div className='flex flex-col gap-2'>
+			<motion.div
+				className='flex flex-col gap-3 mb-30'
+				variants={staggerContainer}
+				initial='initial'
+				animate='animate'
+				exit='exit'
+			>
+				{/* Карусель изображений */}
+				<motion.div variants={fadeInScale}>
+					{event.image_base64_list.length > 0 ? (
+						<Carousel plugins={[Autoplay({ delay: 2000 })]}>
+							<CarouselContent>
+								{event.image_base64_list.map((image_base64, index) => (
+									<CarouselItem key={index}>
+										<img
+											className='border-1 rounded-2xl h-60 object-cover w-full'
+											src={base64ToImageUrl(image_base64)}
+										/>
+									</CarouselItem>
+								))}
+							</CarouselContent>
+						</Carousel>
+					) : (
+						<div className='flex rounded-xl border-1 h-60 items-center justify-center'>
+							<ImageIcon className='stroke-white' />
+						</div>
+					)}
+				</motion.div>
+
+				{/* Badges */}
+				<motion.div className='flex flex-col gap-2' variants={fadeInScale}>
 					<div className='flex gap-2'>
 						<Badge variant='secondary'>{formattedDate}</Badge>
 						<Badge variant='secondary'>
@@ -138,56 +155,61 @@ const EventDetailPage = () => {
 						</Badge>
 					</div>
 					{event.place && <Badge>{event.place}</Badge>}
-				</div>
-				<div className='flex flex-col gap-1'>
+				</motion.div>
+
+				{/* Заголовки */}
+				<motion.div className='flex flex-col gap-1' variants={fadeInScale}>
 					<h1 className='text-2xl font-bold text-zinc-100'>{event.name}</h1>
 					<h2 className='text-l font-regular text-zinc-400'>
 						{event.description}
 					</h2>
-				</div>
+				</motion.div>
 
-				{user?.role != UserRole.admin &&
-					(!event.is_member ? (
-						<div className='flex flex-col w-full justify-center'>
+				{/* Кнопки регистрации/экспорта */}
+				<motion.div
+					className='flex flex-col gap-2 w-full justify-center'
+					variants={fadeInScale}
+				>
+					{user?.role != UserRole.admin &&
+						(!event.is_member ? (
 							<Button size='lg' onClick={() => registerEvent()}>
 								Зарегистрироваться
 							</Button>
-						</div>
-					) : (
-						<div className='flex flex-col gap-2 w-full justify-center'>
-							<Button
-								size='lg'
-								onClick={() => unregisterEvent()}
-								variant='destructive'
-							>
-								Отменить регистрацию
-							</Button>
-							<Button
-								size='lg'
-								variant='outline'
-								onClick={() => exportToCalendar()}
-								disabled={isExporting}
-							>
-								<>
-									<CalendarPlusIcon />
-									{isExporting
-										? 'Экспортируем в календарь...'
-										: 'Экспорт в календарь'}
-								</>
-							</Button>
-						</div>
-					))}
-
-				{user?.role == UserRole.admin && (
-					<div className='flex flex-col gap-2 w-full justify-center'>
-						<AlertDialog>
-							<AlertDialogTrigger className='w-full'>
+						) : (
+							<>
 								<Button
-									className='w-full'
 									size='lg'
-									onClick={() => {}}
+									onClick={() => unregisterEvent()}
 									variant='destructive'
 								>
+									Отменить регистрацию
+								</Button>
+								<Button
+									size='lg'
+									variant='outline'
+									onClick={() => exportToCalendar()}
+									disabled={isExporting}
+								>
+									<>
+										<CalendarPlusIcon />
+										{isExporting
+											? 'Экспортируем в календарь...'
+											: 'Экспорт в календарь'}
+									</>
+								</Button>
+							</>
+						))}
+				</motion.div>
+
+				{/* Админ кнопка */}
+				{user?.role == UserRole.admin && (
+					<motion.div
+						className='flex flex-col gap-2 w-full justify-center'
+						variants={fadeInScale}
+					>
+						<AlertDialog>
+							<AlertDialogTrigger className='w-full'>
+								<Button size='lg' variant='destructive'>
 									Отменить мероприятие
 								</Button>
 							</AlertDialogTrigger>
@@ -208,15 +230,18 @@ const EventDetailPage = () => {
 								</AlertDialogFooter>
 							</AlertDialogContent>
 						</AlertDialog>
-					</div>
+					</motion.div>
 				)}
-			</div>
+			</motion.div>
 
+			{/* Navbar */}
 			{user?.role == UserRole.admin && (
-				<NavContainer>
-					<NavMembers eventId={event.event_id} />
-					<QRScan eventId={event.event_id} />
-				</NavContainer>
+				<motion.div variants={fadeInScale}>
+					<NavContainer>
+						<NavMembers eventId={event.event_id} />
+						<QRScan eventId={event.event_id} />
+					</NavContainer>
+				</motion.div>
 			)}
 		</Container>
 	)
