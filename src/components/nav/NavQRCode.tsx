@@ -10,7 +10,7 @@ import { QrCode } from 'lucide-react'
 import NavItem from './NavItem'
 import { useAuth } from '@/contexts/AuthContext'
 import { useQrCode } from '@/contexts/QRContext'
-import base64ToImageUrl from '@/utils/image'
+import base64ToImageUrl, { base64ToImageUrlFix } from '@/utils/image'
 import { useEffect } from 'react'
 
 const QRCode = () => {
@@ -44,7 +44,7 @@ const QRCode = () => {
 							{user?.first_name} {user?.last_name}
 						</p>
 						<img
-							src={base64ToImageUrl(qrCode)}
+							src={base64ToImageUrlFix(qrCode)}
 							alt='Ваш личный QR-код'
 							className='mx-auto rounded-lg size-60'
 						/>
