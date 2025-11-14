@@ -17,8 +17,11 @@ import type { EventUserDTO } from '@/dto/event'
 import api from '@/api/api'
 import { useAuth } from '@/contexts/AuthContext'
 import { toast } from 'sonner'
+import { useBackButton } from '@/hooks/useBackButton'
 
 const EventDetailPage = () => {
+	useBackButton(true)
+
 	const { eventId } = useParams<{ eventId: string }>()
 
 	const [event, setEvent] = useState<EventUserDTO>(eventMock1)

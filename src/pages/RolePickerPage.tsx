@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/AuthContext'
 import { UserRole } from '@/dto/user'
+import { useBackButton } from '@/hooks/useBackButton'
 import { useWebApp } from '@/hooks/useWebApp'
 import { Container } from '@maxhub/max-ui'
 import { CalendarDaysIcon } from 'lucide-react'
@@ -10,6 +11,7 @@ import { useNavigate } from 'react-router-dom'
 
 const RolePickerPage = () => {
 	const navigate = useNavigate()
+	useBackButton(true)
 
 	const { user, updateUserRole } = useAuth()
 
