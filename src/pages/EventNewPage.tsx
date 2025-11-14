@@ -13,17 +13,23 @@ import api from '@/api/api' // Предполагаем, что у вас ест
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 
+import { Calendar } from '@/components/ui/calendar'
+import { DateTimePicker24h } from '@/components/DateTimePicker24h'
+import { TimePicker24h } from '@/components/TimePicker24h'
+
 // Тип для данных формы
 interface EventFormData {
 	name: string
 	description: string
 	place: string
-	date: string
+	date: Date
 	startTime: string
 	endTime: string
 	audience: UserRole[]
 	memberLimit: number | ''
-	images: string[] // массив Base64 строк
+	images: string[]
+	feedbackText: string
+	feedbackLink: string
 }
 
 // Тип для объекта ошибок
@@ -39,12 +45,14 @@ const EventNewPage = () => {
 		name: '',
 		description: '',
 		place: '',
-		date: '',
-		startTime: '',
-		endTime: '',
+		date: new Date(),
+		startTime: '10:00',
+		endTime: '12:00',
 		audience: [],
 		memberLimit: '',
 		images: [],
+		feedbackText: '',
+		feedbackLink: '',
 	})
 
 	const [errors, setErrors] = useState<FormErrors>({})
@@ -124,19 +132,30 @@ const EventNewPage = () => {
 			newErrors.audience = 'Выберите хотя бы одну целевую аудиторию'
 		}
 
+		// === Новая логика для обратной связи ===
+		if (formData.feedbackText.trim() || formData.feedbackLink.trim()) {
+			if (!formData.feedbackText.trim())
+				newErrors.feedbackText = 'Введите текст обратной связи'
+			if (!formData.feedbackLink.trim())
+				newErrors.feedbackLink = 'Введите ссылку для обратной связи'
+		}
+
 		setErrors(newErrors)
+
 		const isValid = Object.keys(newErrors).length === 0
 
-		// Если форма невалидна, показываем toast для каждой ошибки
 		if (!isValid) {
-			Object.values(newErrors).forEach(error => {
-				if (error) {
-					toast.error(error)
-				}
-			})
+			Object.values(newErrors).forEach(error => error && toast.error(error))
 		}
 
 		return isValid
+	}
+
+	const formatDate = (date: Date) => {
+		const y = date.getFullYear()
+		const m = (date.getMonth() + 1).toString().padStart(2, '0')
+		const d = date.getDate().toString().padStart(2, '0')
+		return `${y}-${m}-${d}`
 	}
 
 	const handleSubmit = async () => {
@@ -148,11 +167,15 @@ const EventNewPage = () => {
 			name: formData.name.trim(),
 			description: formData.description.trim() || null,
 			place: formData.place.trim() || null,
-			start_time: new Date(`${formData.date}T${formData.startTime}`),
-			end_time: new Date(`${formData.date}T${formData.endTime}`),
+			start_time: new Date(
+				`${formatDate(formData.date)}T${formData.startTime}`
+			),
+			end_time: new Date(`${formatDate(formData.date)}T${formData.endTime}`),
 			image_base64_list: formData.images,
 			audience: formData.audience,
 			member_limit: Number(formData.memberLimit),
+			feedback_text: formData.feedbackText || '',
+			feedback_link: formData.feedbackLink || '',
 		}
 
 		try {
@@ -201,32 +224,37 @@ const EventNewPage = () => {
 				</Field>
 
 				<Field text='Дата' required={true} error={errors.date}>
-					<Input
-						name='date'
-						value={formData.date}
-						onChange={handleChange}
-						type='date'
+					<Calendar
+						mode='single'
+						selected={formData.date ? new Date(formData.date) : undefined}
+						buttonVariant='ghost'
+						onSelect={date => {
+							if (date) {
+								setFormData(prev => ({ ...prev, date }))
+							}
+						}}
+						className='w-full rounded-lg border'
 					/>
 				</Field>
 
 				<Field text='Время' required={true} error={errors.time}>
 					<div className='flex gap-4 items-center w-full justify-between'>
-						<div className='flex items-center gap-2 w-full'>
+						<div className='flex flex-col items-center gap-2 w-full'>
 							<p className='text-zinc-400'>С</p>
-							<Input
-								name='startTime'
+							<TimePicker24h
 								value={formData.startTime}
-								onChange={handleChange}
-								type='time'
+								onChange={val =>
+									setFormData(prev => ({ ...prev, startTime: val }))
+								}
 							/>
 						</div>
-						<div className='flex items-center gap-2 w-full'>
+						<div className='flex flex-col items-center gap-2 w-full'>
 							<p className='text-zinc-400'>До</p>
-							<Input
-								name='endTime'
+							<TimePicker24h
 								value={formData.endTime}
-								onChange={handleChange}
-								type='time'
+								onChange={val =>
+									setFormData(prev => ({ ...prev, endTime: val }))
+								}
 							/>
 						</div>
 					</div>
@@ -315,6 +343,24 @@ const EventNewPage = () => {
 							<ImagePlusIcon className='stroke-zinc-400' size={40} />
 						</Button>
 					</div>
+				</Field>
+
+				<Field text='Текст обратной связи' error={errors.feedbackText}>
+					<Input
+						name='feedbackText'
+						value={formData.feedbackText}
+						placeholder='Например: "Как вам мероприятие?"'
+						onChange={handleChange}
+					/>
+				</Field>
+
+				<Field text='Ссылка для обратной связи' error={errors.feedbackLink}>
+					<Input
+						name='feedbackLink'
+						value={formData.feedbackLink}
+						placeholder='https://'
+						onChange={handleChange}
+					/>
 				</Field>
 
 				<Button

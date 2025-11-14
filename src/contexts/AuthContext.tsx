@@ -26,10 +26,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [loading, setLoading] = useState<boolean>(true)
 	const [error, setError] = useState<string | null>(null)
 
-	//const { userMax } = useWebApp()
-	const userMax = {
-		id: 98368258,
-	}
+	const { userMax } = useWebApp()
+	//const userMax = {
+	//	id: 98368258,
+	//}
 
 	const rolePageMap = {
 		[UserRole.student]: '/me',

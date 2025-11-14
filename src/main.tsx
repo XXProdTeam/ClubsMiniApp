@@ -11,6 +11,11 @@ import { QrCodeProvider } from './contexts/QRContext.js'
 import { Toaster } from 'sonner'
 dayjs.locale('ru')
 
+import('eruda').then(eruda => {
+	eruda.default.init()
+	eruda.default.show()
+})
+
 const Root = () => {
 	return (
 		<MaxUI platform='ios' colorScheme='dark'>

@@ -1,6 +1,6 @@
 import { eventMock1 } from '@/mock'
 import { Container } from '@maxhub/max-ui'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import {
 	Carousel,
 	CarouselContent,
@@ -18,10 +18,25 @@ import api from '@/api/api'
 import { useAuth } from '@/contexts/AuthContext'
 import { toast } from 'sonner'
 import { useBackButton } from '@/hooks/useBackButton'
+import { UserRole } from '@/dto/user'
+import NavContainer from '@/components/nav/NavContainer'
+import { QRScan } from '@/components/nav/NavQRScan'
+import { NavMembers } from '@/components/nav/NavMembers'
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 
 const EventDetailPage = () => {
 	useBackButton(true)
-
+	const navigate = useNavigate()
 	const { eventId } = useParams<{ eventId: string }>()
 
 	const [event, setEvent] = useState<EventUserDTO>(eventMock1)
@@ -68,6 +83,11 @@ const EventDetailPage = () => {
 		fetchEvent()
 	}, [eventId, user])
 
+	const deleteEvent = async () => {
+		await api.delete(`/events/${event.event_id}`)
+		navigate(-1)
+	}
+
 	return (
 		<Container className='bg-black'>
 			<div className='w-full flex flex-col gap-3 mb-30'>
@@ -106,7 +126,7 @@ const EventDetailPage = () => {
 							до {event.member_limit} участников
 						</Badge>
 					</div>
-					<Badge>{event.place}</Badge>
+					{event.place && <Badge>{event.place}</Badge>}
 				</div>
 				<div className='flex flex-col gap-1'>
 					<h1 className='text-2xl font-bold text-zinc-100'>{event.name}</h1>
@@ -114,31 +134,73 @@ const EventDetailPage = () => {
 						{event.description}
 					</h2>
 				</div>
-				{!event.is_member ? (
-					<div className='flex flex-col w-full justify-center'>
-						<Button size='lg' onClick={() => registerEvent()}>
-							Зарегистрироваться
-						</Button>
-					</div>
-				) : (
+
+				{user?.role != UserRole.admin &&
+					(!event.is_member ? (
+						<div className='flex flex-col w-full justify-center'>
+							<Button size='lg' onClick={() => registerEvent()}>
+								Зарегистрироваться
+							</Button>
+						</div>
+					) : (
+						<div className='flex flex-col gap-2 w-full justify-center'>
+							<Button
+								size='lg'
+								onClick={() => unregisterEvent()}
+								variant='destructive'
+							>
+								Отменить регистрацию
+							</Button>
+							<Button
+								size='lg'
+								variant='outline'
+								onClick={() => exportToCalendar()}
+							>
+								<CalendarPlusIcon /> Экспорт в календарь
+							</Button>
+						</div>
+					))}
+
+				{user?.role == UserRole.admin && (
 					<div className='flex flex-col gap-2 w-full justify-center'>
-						<Button
-							size='lg'
-							onClick={() => unregisterEvent()}
-							variant='destructive'
-						>
-							Отменить регистрацию
-						</Button>
-						<Button
-							size='lg'
-							variant='outline'
-							onClick={() => exportToCalendar()}
-						>
-							<CalendarPlusIcon /> Экспорт в календарь
-						</Button>
+						<AlertDialog>
+							<AlertDialogTrigger className='w-full'>
+								<Button
+									className='w-full'
+									size='lg'
+									onClick={() => {}}
+									variant='destructive'
+								>
+									Отменить мероприятие
+								</Button>
+							</AlertDialogTrigger>
+							<AlertDialogContent>
+								<AlertDialogHeader>
+									<AlertDialogTitle>
+										Вы действительно хотите отменить мероприятие?
+									</AlertDialogTitle>
+									<AlertDialogDescription>
+										Это мероприятие будет удалено без возможности возвращения
+									</AlertDialogDescription>
+								</AlertDialogHeader>
+								<AlertDialogFooter>
+									<AlertDialogCancel>Назад</AlertDialogCancel>
+									<AlertDialogAction onClick={() => deleteEvent()}>
+										Отменить мероприятие
+									</AlertDialogAction>
+								</AlertDialogFooter>
+							</AlertDialogContent>
+						</AlertDialog>
 					</div>
 				)}
 			</div>
+
+			{user?.role == UserRole.admin && (
+				<NavContainer>
+					<NavMembers eventId={event.event_id} />
+					<QRScan eventId={event.event_id} />
+				</NavContainer>
+			)}
 		</Container>
 	)
 }

@@ -27,7 +27,7 @@ const EventCard = (event: EventDTO) => {
 			)}
 
 			<div className='flex  flex-col gap-1'>
-				<Badge>{event.place}</Badge>
+				{event.place && <Badge>{event.place}</Badge>}
 				<div className='flex gap-1'>
 					<Badge variant='secondary'>{formattedDate}</Badge>
 					<Badge variant='secondary'>
