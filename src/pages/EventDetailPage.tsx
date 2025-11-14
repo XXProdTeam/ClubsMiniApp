@@ -72,11 +72,22 @@ const EventDetailPage = () => {
 		})
 	}
 
+	const [isExporting, setIsExporting] = useState(false)
+
 	const exportToCalendar = async () => {
-		await api.get(`/users/events/${eventId}/ics?user_id=${user?.user_id}`)
-		toast.success('Событие готово к импорту в календарь', {
-			description: 'Откройте чат с ботом и откройте файл .ics',
-		})
+		if (isExporting) return
+		setIsExporting(true)
+		try {
+			await api.get(`/users/events/${eventId}/ics?user_id=${user?.user_id}`)
+			toast.success('Событие готово к импорту в календарь', {
+				description: 'Откройте чат с ботом и откройте файл .ics',
+			})
+		} catch (err) {
+			console.error(err)
+			toast.error('Не удалось экспортировать событие')
+		} finally {
+			setIsExporting(false)
+		}
 	}
 
 	useEffect(() => {
@@ -155,8 +166,14 @@ const EventDetailPage = () => {
 								size='lg'
 								variant='outline'
 								onClick={() => exportToCalendar()}
+								disabled={isExporting}
 							>
-								<CalendarPlusIcon /> Экспорт в календарь
+								<>
+									<CalendarPlusIcon />
+									{isExporting
+										? 'Экспортируем в календарь...'
+										: 'Экспорт в календарь'}
+								</>
 							</Button>
 						</div>
 					))}
