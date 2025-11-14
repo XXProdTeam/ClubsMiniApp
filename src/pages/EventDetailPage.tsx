@@ -54,44 +54,79 @@ const EventDetailPage = () => {
 	const navigate = useNavigate()
 	const { eventId } = useParams<{ eventId: string }>()
 
-	const [event, setEvent] = useState<EventUserDTO>(eventMock1)
+	const [event, setEvent] = useState<EventUserDTO | null>(null)
+	const [loading, setLoading] = useState(true)
+	const [error, setError] = useState<string | null>(null)
+	const [isExporting, setIsExporting] = useState(false)
 	const { user } = useAuth()
 
-	const formattedStartTime = dayjs(event.start_time).format('HH:mm')
-	const formattedEndTime = dayjs(event.end_time).format('HH:mm')
-	const formattedDate = dayjs(event.start_time).format('D MMMM')
+	const formattedStartTime = event
+		? dayjs(event.start_time).format('HH:mm')
+		: ''
+	const formattedEndTime = event ? dayjs(event.end_time).format('HH:mm') : ''
+	const formattedDate = event ? dayjs(event.start_time).format('D MMMM') : ''
 
 	const fetchEvent = async () => {
-		const response = await api.get<EventUserDTO>(
-			`/users/events/${eventId}?user_id=${user?.user_id}`
-		)
-		setEvent(response.data)
+		setLoading(true)
+		setError(null)
+		try {
+			const response = await api.get<EventUserDTO>(
+				`/users/events/${eventId}?user_id=${user?.user_id}`
+			)
+			setEvent(response.data)
+		} catch (err: any) {
+			console.error(err)
+			setError(err.message || 'Не удалось загрузить мероприятие')
+		} finally {
+			setLoading(false)
+		}
 	}
 
 	const registerEvent = async () => {
-		await api.post(`/users/events/${eventId}/register?user_id=${user?.user_id}`)
-		fetchEvent()
-		toast.success('Вы успешно зарегестрировались!', {
-			description: 'Будем ждать вас на мероприятии',
-		})
+		if (!event) return
+		setLoading(true)
+		try {
+			await api.post(
+				`/users/events/${event.event_id}/register?user_id=${user?.user_id}`
+			)
+			fetchEvent()
+			toast.success('Вы успешно зарегистрировались!', {
+				description: 'Будем ждать вас на мероприятии',
+			})
+		} catch (err) {
+			console.error(err)
+			toast.error('Не удалось зарегистрироваться')
+		} finally {
+			setLoading(false)
+		}
 	}
 
 	const unregisterEvent = async () => {
-		await api.delete(
-			`/users/events/${eventId}/register?user_id=${user?.user_id}`
-		)
-		fetchEvent()
-		toast.success('Регистрация успешно отменена!', {
-			description: 'Приходите на другие мероприятия',
-		})
+		if (!event) return
+		setLoading(true)
+		try {
+			await api.delete(
+				`/users/events/${event.event_id}/register?user_id=${user?.user_id}`
+			)
+			fetchEvent()
+			toast.success('Регистрация успешно отменена!', {
+				description: 'Приходите на другие мероприятия',
+			})
+		} catch (err) {
+			console.error(err)
+			toast.error('Не удалось отменить регистрацию')
+		} finally {
+			setLoading(false)
+		}
 	}
 
-	const [isExporting, setIsExporting] = useState(false)
 	const exportToCalendar = async () => {
-		if (isExporting) return
+		if (!event || isExporting) return
 		setIsExporting(true)
 		try {
-			await api.get(`/users/events/${eventId}/ics?user_id=${user?.user_id}`)
+			await api.get(
+				`/users/events/${event.event_id}/ics?user_id=${user?.user_id}`
+			)
 			toast.success('Событие готово к импорту в календарь', {
 				description: 'Откройте чат с ботом и откройте файл .ics',
 			})
@@ -103,13 +138,38 @@ const EventDetailPage = () => {
 		}
 	}
 
+	const deleteEvent = async () => {
+		if (!event) return
+		setLoading(true)
+		try {
+			await api.delete(`/events/${event.event_id}`)
+			navigate(-1)
+		} catch (err) {
+			console.error(err)
+			toast.error('Не удалось удалить мероприятие')
+		} finally {
+			setLoading(false)
+		}
+	}
+
 	useEffect(() => {
 		fetchEvent()
 	}, [eventId, user])
 
-	const deleteEvent = async () => {
-		await api.delete(`/events/${event.event_id}`)
-		navigate(-1)
+	if (loading) {
+		return (
+			<Container className='bg-black flex items-center justify-center h-[70vh]'>
+				<div className='w-12 h-12 border-4 border-t-transparent border-zinc-400 rounded-full animate-spin'></div>
+			</Container>
+		)
+	}
+
+	if (error || !event) {
+		return (
+			<Container className='bg-black flex items-center justify-center h-[70vh]'>
+				<p className='text-red-500'>{error || 'Событие не найдено'}</p>
+			</Container>
+		)
 	}
 
 	return (
