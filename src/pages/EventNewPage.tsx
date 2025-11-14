@@ -8,16 +8,14 @@ import { useBackButton } from '@/hooks/useBackButton'
 import { Checkbox } from '@/components/ui/checkbox'
 import Field from '@/components/form/Field'
 import { Button } from '@/components/ui/button'
-import type { UserRole } from '@/dto/user' // Убедитесь, что путь корректен
-import api from '@/api/api' // Предполагаем, что у вас есть настроенный api-клиент
+import type { UserRole } from '@/dto/user'
+import api from '@/api/api'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-
 import { Calendar } from '@/components/ui/calendar'
-import { DateTimePicker24h } from '@/components/DateTimePicker24h'
 import { TimePicker24h } from '@/components/TimePicker24h'
+import { motion, AnimatePresence } from 'framer-motion'
 
-// Тип для данных формы
 interface EventFormData {
 	name: string
 	description: string
@@ -32,8 +30,17 @@ interface EventFormData {
 	feedbackLink: string
 }
 
-// Тип для объекта ошибок
 type FormErrors = Partial<Record<keyof EventFormData | 'time', string>>
+
+const fadeInScale = {
+	initial: { opacity: 0, scale: 0.95 },
+	animate: { opacity: 1, scale: 1, transition: { duration: 0.3 } },
+	exit: { opacity: 0, scale: 0.95, transition: { duration: 0.2 } },
+}
+
+const staggerContainer = {
+	animate: { transition: { staggerChildren: 0.1 } },
+}
 
 const EventNewPage = () => {
 	useBackButton(true)
@@ -76,7 +83,6 @@ const EventNewPage = () => {
 
 	const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
 		if (!e.target.files) return
-
 		const files = Array.from(e.target.files)
 		files.forEach(file => {
 			const reader = new FileReader()
@@ -97,57 +103,34 @@ const EventNewPage = () => {
 		}))
 	}
 
-	// --- Валидация и отправка ---
-
 	const validateForm = (): boolean => {
 		const newErrors: FormErrors = {}
-
 		if (!formData.name.trim())
 			newErrors.name = 'Название обязательно для заполнения'
-
-		if (formData.memberLimit === '') {
+		if (formData.memberLimit === '')
 			newErrors.memberLimit = 'Количество участников обязательно'
-		} else if (Number(formData.memberLimit) < 1) {
+		else if (Number(formData.memberLimit) < 1)
 			newErrors.memberLimit = 'Минимум 1 участник'
-		}
-
-		if (!formData.date) {
-			newErrors.date = 'Дата обязательна'
-		} else {
-			const today = new Date()
-			today.setHours(0, 0, 0, 0)
-			const selectedDate = new Date(formData.date)
-			if (selectedDate < today) {
-				newErrors.date = 'Дата не может быть в прошлом'
-			}
-		}
-
-		if (!formData.startTime || !formData.endTime) {
+		if (!formData.date) newErrors.date = 'Дата обязательна'
+		const today = new Date()
+		today.setHours(0, 0, 0, 0)
+		if (formData.date < today) newErrors.date = 'Дата не может быть в прошлом'
+		if (!formData.startTime || !formData.endTime)
 			newErrors.time = 'Время начала и конца обязательны'
-		} else if (formData.startTime > formData.endTime) {
+		else if (formData.startTime > formData.endTime)
 			newErrors.time = 'Время начала не может быть позже времени окончания'
-		}
-
-		if (formData.audience.length === 0) {
+		if (formData.audience.length === 0)
 			newErrors.audience = 'Выберите хотя бы одну целевую аудиторию'
-		}
-
-		// === Новая логика для обратной связи ===
 		if (formData.feedbackText.trim() || formData.feedbackLink.trim()) {
 			if (!formData.feedbackText.trim())
 				newErrors.feedbackText = 'Введите текст обратной связи'
 			if (!formData.feedbackLink.trim())
 				newErrors.feedbackLink = 'Введите ссылку для обратной связи'
 		}
-
 		setErrors(newErrors)
-
 		const isValid = Object.keys(newErrors).length === 0
-
-		if (!isValid) {
+		if (!isValid)
 			Object.values(newErrors).forEach(error => error && toast.error(error))
-		}
-
 		return isValid
 	}
 
@@ -160,9 +143,7 @@ const EventNewPage = () => {
 
 	const handleSubmit = async () => {
 		if (!validateForm()) return
-
 		setIsSubmitting(true)
-
 		const eventDTO = {
 			name: formData.name.trim(),
 			description: formData.description.trim() || null,
@@ -177,11 +158,10 @@ const EventNewPage = () => {
 			feedback_text: formData.feedbackText || '',
 			feedback_link: formData.feedbackLink || '',
 		}
-
 		try {
 			await api.post('/events/', eventDTO)
 			toast.success('Мероприятие успешно создано!')
-			navigate('/events') // Перенаправление после успеха
+			navigate('/admin')
 		} catch (error) {
 			console.error('Ошибка при создании мероприятия:', error)
 			toast.error('Ошибка при создании мероприятия. Попробуйте позже.')
@@ -192,64 +172,62 @@ const EventNewPage = () => {
 
 	return (
 		<Container className='bg-black'>
-			<div className='flex flex-col gap-6 pb-24'>
-				<IconHeader text='Создание мероприятия' icon={PlusCircleIcon} />
+			<motion.div
+				className='flex flex-col gap-6 pb-24'
+				variants={staggerContainer}
+				initial='initial'
+				animate='animate'
+			>
+				<motion.div variants={fadeInScale}>
+					<IconHeader text='Создание мероприятия' icon={PlusCircleIcon} />
+				</motion.div>
 
-				{/* --- Поля формы --- */}
-				<Field text='Название мероприятия' required={true} error={errors.name}>
-					<Input
-						name='name'
-						value={formData.name}
-						placeholder='Введите название'
-						onChange={handleChange}
-					/>
-				</Field>
-
-				<Field text='Описание' error={errors.description}>
-					<Input
-						name='description'
-						value={formData.description}
-						placeholder='Введите описание'
-						onChange={handleChange}
-					/>
-				</Field>
-
-				<Field text='Место' error={errors.place}>
-					<Input
-						name='place'
-						value={formData.place}
-						placeholder='Введите место'
-						onChange={handleChange}
-					/>
-				</Field>
-
-				<Field text='Дата' required={true} error={errors.date}>
-					<Calendar
-						mode='single'
-						selected={formData.date ? new Date(formData.date) : undefined}
-						buttonVariant='ghost'
-						onSelect={date => {
-							if (date) {
-								setFormData(prev => ({ ...prev, date }))
+				{['name', 'description', 'place'].map((field, idx) => (
+					<motion.div key={field} variants={fadeInScale}>
+						<Field
+							text={
+								field === 'name'
+									? 'Название мероприятия'
+									: field === 'description'
+									? 'Описание'
+									: 'Место'
 							}
-						}}
-						className='w-full rounded-lg border'
-					/>
-				</Field>
+							required={field === 'name'}
+							error={errors[field as keyof EventFormData]}
+						>
+							<Input
+								name={field}
+								value={formData[field as keyof EventFormData] as string}
+								placeholder=''
+								onChange={handleChange}
+							/>
+						</Field>
+					</motion.div>
+				))}
 
-				<Field text='Время' required={true} error={errors.time}>
-					<div className='flex gap-4 items-center w-full justify-between'>
-						<div className='flex flex-col items-center gap-2 w-full'>
-							<p className='text-zinc-400'>С</p>
+				<motion.div variants={fadeInScale}>
+					<Field text='Дата' required={true} error={errors.date}>
+						<Calendar
+							mode='single'
+							selected={formData.date}
+							buttonVariant='ghost'
+							onSelect={date =>
+								date && setFormData(prev => ({ ...prev, date }))
+							}
+							className='w-full rounded-lg border'
+						/>
+					</Field>
+				</motion.div>
+
+				<motion.div variants={fadeInScale}>
+					<Field text='Время' required={true} error={errors.time}>
+						<div className='flex gap-4 items-center w-full justify-between'>
 							<TimePicker24h
 								value={formData.startTime}
 								onChange={val =>
 									setFormData(prev => ({ ...prev, startTime: val }))
 								}
 							/>
-						</div>
-						<div className='flex flex-col items-center gap-2 w-full'>
-							<p className='text-zinc-400'>До</p>
 							<TimePicker24h
 								value={formData.endTime}
 								onChange={val =>
@@ -257,127 +235,137 @@ const EventNewPage = () => {
 								}
 							/>
 						</div>
-					</div>
-				</Field>
+					</Field>
+				</motion.div>
 
-				<Field text='Для кого' required={true} error={errors.audience}>
-					<div className='flex flex-col gap-3'>
-						<div className='flex items-center gap-4'>
-							<Checkbox
-								id='students'
-								checked={formData.audience.includes('student')}
-								onCheckedChange={() => handleAudienceChange('student')}
-								className='size-6'
-							/>
-							<label
-								htmlFor='students'
-								className='text-l font-medium text-zinc-300'
-							>
-								Студенты
-							</label>
+				<motion.div variants={fadeInScale}>
+					<Field text='Для кого' required={true} error={errors.audience}>
+						<div className='flex flex-col gap-3'>
+							{['student', 'applicant'].map(role => (
+								<div key={role} className='flex items-center gap-4'>
+									<Checkbox
+										id={role}
+										checked={formData.audience.includes(role as UserRole)}
+										onCheckedChange={() =>
+											handleAudienceChange(role as UserRole)
+										}
+										className='size-6'
+									/>
+									<label
+										htmlFor={role}
+										className='text-l font-medium text-zinc-300'
+									>
+										{role === 'student' ? 'Студенты' : 'Абитуриенты'}
+									</label>
+								</div>
+							))}
 						</div>
-						<div className='flex items-center gap-4'>
-							<Checkbox
-								id='applicants'
-								checked={formData.audience.includes('applicant')}
-								onCheckedChange={() => handleAudienceChange('applicant')}
-								className='size-6'
-							/>
-							<label
-								htmlFor='applicants'
-								className='text-l font-medium text-zinc-300'
-							>
-								Абитуриенты
-							</label>
-						</div>
-					</div>
-				</Field>
+					</Field>
+				</motion.div>
 
-				<Field
-					text='Количество участников'
-					required={true}
-					error={errors.memberLimit}
-				>
-					<Input
-						name='memberLimit'
-						value={formData.memberLimit}
-						placeholder='100'
-						onChange={handleChange}
-						type='number'
-						min='1'
-					/>
-				</Field>
-
-				<Field text='Фотографии' error={errors.images}>
-					<div className='flex flex-wrap gap-4'>
-						{formData.images.map((base64, index) => (
-							<div key={index} className='relative h-32 w-32'>
-								<img
-									src={base64}
-									alt={`upload-preview-${index}`}
-									className='h-full w-full object-cover rounded-lg'
-								/>
-								<button
-									onClick={() => handleRemoveImage(index)}
-									className='absolute -top-2 -right-2 bg-black rounded-full'
-								>
-									<XCircleIcon className='text-red-500' />
-								</button>
-							</div>
-						))}
-
-						<input
-							type='file'
-							ref={fileInputRef}
-							onChange={handleImageChange}
-							accept='image/*'
-							multiple
-							hidden
+				<motion.div variants={fadeInScale}>
+					<Field
+						text='Количество участников'
+						required={true}
+						error={errors.memberLimit}
+					>
+						<Input
+							name='memberLimit'
+							value={formData.memberLimit}
+							placeholder='100'
+							onChange={handleChange}
+							type='number'
+							min='1'
 						/>
-						<Button
-							type='button'
-							variant='outline'
-							onClick={() => fileInputRef.current?.click()}
-							className='h-32 w-32 border-dashed border-2 rounded-lg border-zinc-400 flex items-center justify-center'
+					</Field>
+				</motion.div>
+
+				<motion.div variants={fadeInScale}>
+					<Field text='Фотографии' error={errors.images}>
+						<div className='flex flex-wrap gap-4'>
+							<AnimatePresence>
+								{formData.images.map((base64, index) => (
+									<motion.div
+										key={index}
+										className='relative h-32 w-32'
+										variants={fadeInScale}
+										initial='initial'
+										animate='animate'
+										exit='exit'
+									>
+										<img
+											src={base64}
+											alt={`upload-preview-${index}`}
+											className='h-full w-full object-cover rounded-lg'
+										/>
+										<button
+											onClick={() => handleRemoveImage(index)}
+											className='absolute -top-2 -right-2 bg-black rounded-full'
+										>
+											<XCircleIcon className='text-red-500' />
+										</button>
+									</motion.div>
+								))}
+							</AnimatePresence>
+
+							<input
+								type='file'
+								ref={fileInputRef}
+								onChange={handleImageChange}
+								accept='image/*'
+								multiple
+								hidden
+							/>
+							<Button
+								type='button'
+								variant='outline'
+								onClick={() => fileInputRef.current?.click()}
+								className='h-32 w-32 border-dashed border-2 rounded-lg border-zinc-400 flex items-center justify-center'
+							>
+								<ImagePlusIcon className='stroke-zinc-400' size={40} />
+							</Button>
+						</div>
+					</Field>
+				</motion.div>
+
+				{/* Обратная связь */}
+				{['feedbackText', 'feedbackLink'].map((field, idx) => (
+					<motion.div key={field} variants={fadeInScale}>
+						<Field
+							text={
+								field === 'feedbackText'
+									? 'Текст обратной связи'
+									: 'Ссылка для обратной связи'
+							}
+							error={errors[field as keyof EventFormData]}
 						>
-							<ImagePlusIcon className='stroke-zinc-400' size={40} />
-						</Button>
-					</div>
-				</Field>
+							<Input
+								name={field}
+								value={formData[field as keyof EventFormData] as string}
+								placeholder={field === 'feedbackText' ? '' : ''}
+								onChange={handleChange}
+							/>
+						</Field>
+					</motion.div>
+				))}
 
-				<Field text='Текст обратной связи' error={errors.feedbackText}>
-					<Input
-						name='feedbackText'
-						value={formData.feedbackText}
-						placeholder='Например: "Как вам мероприятие?"'
-						onChange={handleChange}
-					/>
-				</Field>
-
-				<Field text='Ссылка для обратной связи' error={errors.feedbackLink}>
-					<Input
-						name='feedbackLink'
-						value={formData.feedbackLink}
-						placeholder='https://'
-						onChange={handleChange}
-					/>
-				</Field>
-
-				<Button
-					onClick={handleSubmit}
-					disabled={isSubmitting}
-					className='w-full mt-4'
-				>
-					{isSubmitting ? (
-						'Создание...'
-					) : (
-						<>
-							<PlusCircleIcon className='mr-2' />
-							Создать
-						</>
-					)}
-				</Button>
-			</div>
+				<motion.div variants={fadeInScale}>
+					<Button
+						onClick={handleSubmit}
+						disabled={isSubmitting}
+						className='w-full mt-4'
+					>
+						{isSubmitting ? (
+							'Создание...'
+						) : (
+							<>
+								<PlusCircleIcon className='mr-2' />
+								Создать
+							</>
+						)}
+					</Button>
+				</motion.div>
+			</motion.div>
 		</Container>
 	)
 }

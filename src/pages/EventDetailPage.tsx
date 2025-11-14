@@ -209,7 +209,7 @@ const EventDetailPage = () => {
 					>
 						<AlertDialog>
 							<AlertDialogTrigger className='w-full'>
-								<Button size='lg' variant='destructive'>
+								<Button size='lg' variant='destructive' className='w-full'>
 									Отменить мероприятие
 								</Button>
 							</AlertDialogTrigger>
