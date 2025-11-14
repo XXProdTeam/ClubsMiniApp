@@ -21,20 +21,20 @@ const RolePickerPage = () => {
 
 	return (
 		<Container className='mt-10 bg-black'>
-			<div className='flex flex-wrap flex-col items-center gap-12'>
+			<div className='flex flex-wrap flex-col items-center gap-8'>
 				<div className='flex flex-wrap flex-col items-center gap-3'>
 					<div className='p-10 border-2 rounded-full'>
 						<CalendarDaysIcon className='stroke-white' size={40} />
 					</div>
 					<div className='flex flex-wrap flex-col items-center'>
 						<h1 className='scroll-m-20 text-center text-3xl font-extrabold tracking-tight text-balance text-white'>
-							Добро пожаловать в Clubs
+							Добро пожаловать в ВУЗ Клабс
 						</h1>
-						<p className='text-l'>Похоже, что вы...</p>
 					</div>
 				</div>
 
 				<div className='flex flex-wrap flex-col items-center gap-3'>
+					<p className='text-l text-zinc-100 font-medium'>Похоже, что вы...</p>
 					<div className='flex flex-wrap flex-col items-center gap-2'>
 						<Button
 							variant='outline'
