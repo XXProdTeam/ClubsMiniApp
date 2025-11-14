@@ -41,25 +41,27 @@ const UnifiedEventPage = ({
 	const [loading, setLoading] = useState<boolean>(true)
 	const [error, setError] = useState<string | null>(null)
 
-	useEffect(() => {
-		const fetchEvents = async () => {
-			try {
-				const url =
-					queryParamUserId && user?.user_id
-						? `${fetchUrl}?user_id=${user.user_id}`
-						: fetchUrl
+	const fetchEvents = async () => {
+		setLoading(true)
+		setError(null)
+		try {
+			const url =
+				queryParamUserId && user?.user_id
+					? `${fetchUrl}?user_id=${user.user_id}`
+					: fetchUrl
 
-				const response = await api.get<EventDTO[]>(url)
-				setEvents(response.data)
-			} catch (err: any) {
-				console.error('Ошибка при получении событий:', err)
-				setError(err.message || 'Произошла ошибка при загрузке данных')
-			} finally {
-				setLoading(false)
-			}
+			const response = await api.get<EventDTO[]>(url)
+			setEvents(response.data)
+		} catch (err: any) {
+			console.error('Ошибка при получении событий:', err)
+			setError(err.message || 'Произошла ошибка при загрузке данных')
+		} finally {
+			setLoading(false)
 		}
+	}
 
-		fetchEvents()
+	useEffect(() => {
+		if (user || !queryParamUserId) fetchEvents()
 	}, [user, fetchUrl, queryParamUserId])
 
 	const filteredEvents = searchEnabled
@@ -67,6 +69,22 @@ const UnifiedEventPage = ({
 				event.name.toLowerCase().includes(searchQuery.toLowerCase())
 		  )
 		: events
+
+	if (loading) {
+		return (
+			<Container className='bg-black flex items-center justify-center h-[70vh]'>
+				<div className='w-12 h-12 border-4 border-t-transparent border-zinc-400 rounded-full animate-spin'></div>
+			</Container>
+		)
+	}
+
+	if (error) {
+		return (
+			<Container className='bg-black flex items-center justify-center h-[70vh]'>
+				<p className='text-red-500'>{error}</p>
+			</Container>
+		)
+	}
 
 	return (
 		<Container className='bg-black'>
@@ -104,7 +122,7 @@ const UnifiedEventPage = ({
 							>
 								{emptyStateContent ?? (
 									<>
-										<XCircleIcon></XCircleIcon>
+										<XCircleIcon size={32} className='stroke-zinc-400' />
 										<p className='text-zinc-400 text-center'>
 											{searchQuery
 												? 'Ничего не найдено'
