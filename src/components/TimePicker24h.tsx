@@ -34,7 +34,7 @@ export function TimePicker24h({ value, onChange }: TimePicker24hProps) {
 	return (
 		<div className='flex gap-4'>
 			{/* Часы */}
-			<ScrollArea className='h-30 w-30 border rounded-2xl'>
+			<ScrollArea className='h-30 w-20 border rounded-2xl'>
 				<div className='flex flex-col p-1'>
 					{Array.from({ length: 24 }, (_, i) => i).map(h => (
 						<Button
@@ -52,7 +52,7 @@ export function TimePicker24h({ value, onChange }: TimePicker24hProps) {
 			</ScrollArea>
 
 			{/* Минуты с шагом 5 */}
-			<ScrollArea className='h-30 w-30 border rounded-2xl'>
+			<ScrollArea className='h-30 w-20 border rounded-2xl'>
 				<div className='flex flex-col p-1'>
 					{Array.from({ length: 12 }, (_, i) => i * 5).map(m => (
 						<Button
