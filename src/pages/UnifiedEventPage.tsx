@@ -9,6 +9,9 @@ import QRCode from '@/components/nav/NavQRCode'
 import type { EventDTO } from '@/dto/event'
 import { useAuth } from '@/contexts/AuthContext'
 import api from '@/api/api'
+import { motion, AnimatePresence } from 'framer-motion'
+import { fadeUp } from '@/utils/anim'
+import { XCircleIcon } from 'lucide-react'
 
 interface UnifiedEventPageProps {
 	title: string
@@ -67,28 +70,61 @@ const UnifiedEventPage = ({
 
 	return (
 		<Container className='bg-black'>
-			<div className='flex flex-wrap items-center gap-4 pb-24'>
+			<motion.div
+				className='flex flex-wrap items-center gap-4 pb-24'
+				initial='initial'
+				animate='animate'
+				exit='exit'
+				variants={fadeUp}
+			>
 				<IconHeader text={title} icon={icon} />
 
 				{searchEnabled && (
-					<Input
-						placeholder={placeholder}
-						onChange={e => setSearchQuery(e.target.value)}
-					/>
+					<motion.div
+						className='w-full'
+						variants={fadeUp}
+						transition={{ delay: 0.1 }}
+					>
+						<Input
+							placeholder={placeholder}
+							onChange={e => setSearchQuery(e.target.value)}
+						/>
+					</motion.div>
 				)}
 
 				<EventList events={filteredEvents}>
-					{emptyStateContent ?? (
-						<div className='flex flex-col w-full items-center justify-center gap-3 mt-30'>
-							<p className='text-zinc-400 text-center'>
-								{searchQuery ? 'Ничего не найдено' : 'Здесь пока ничего нет'}
-							</p>
-						</div>
-					)}
+					<AnimatePresence>
+						{filteredEvents.length === 0 && (
+							<motion.div
+								className='flex flex-col w-full items-center justify-center gap-3 mt-30'
+								variants={fadeUp}
+								initial='initial'
+								animate='animate'
+								exit='exit'
+							>
+								{emptyStateContent ?? (
+									<>
+										<XCircleIcon></XCircleIcon>
+										<p className='text-zinc-400 text-center'>
+											{searchQuery
+												? 'Ничего не найдено'
+												: 'Здесь пока ничего нет'}
+										</p>
+									</>
+								)}
+							</motion.div>
+						)}
+					</AnimatePresence>
 				</EventList>
-			</div>
+			</motion.div>
 
-			<NavContainer>{navbar ?? <QRCode />}</NavContainer>
+			<motion.div
+				initial={{ opacity: 0, y: 0 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ duration: 0.5, delay: 0.2 }}
+			>
+				<NavContainer>{navbar ?? <QRCode />}</NavContainer>
+			</motion.div>
 		</Container>
 	)
 }

@@ -18,7 +18,7 @@ export const EventMePage = () => (
 		fetchUrl='/users/me/events'
 		queryParamUserId
 		emptyStateContent={
-			<div className='flex flex-col w-full items-center justify-center gap-3 mt-30'>
+			<div className='flex flex-col w-full items-center justify-center gap-3'>
 				<CalendarPlusIcon
 					size={24}
 					strokeWidth={2}

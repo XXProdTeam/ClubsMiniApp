@@ -13,7 +13,7 @@ dayjs.locale('ru')
 
 import('eruda').then(eruda => {
 	eruda.default.init()
-	eruda.default.show()
+	//eruda.default.show()
 })
 
 const Root = () => {
