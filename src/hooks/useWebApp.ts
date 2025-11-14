@@ -2,14 +2,13 @@
 
 import { useEffect, useMemo } from 'react'
 
-const webApp = window.WebApp
-
 export function useWebApp() {
+	const webApp = window.WebApp
 	useEffect(() => {
 		if (webApp) {
 			webApp.ready()
 		}
-	}, [])
+	}, [webApp])
 
 	const value = useMemo(() => {
 		return {
@@ -18,7 +17,7 @@ export function useWebApp() {
 			platform: webApp?.platform,
 			close: () => webApp?.close(),
 		}
-	}, [])
+	}, [webApp])
 
 	return value
 }

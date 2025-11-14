@@ -26,17 +26,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [loading, setLoading] = useState<boolean>(true)
 	const [error, setError] = useState<string | null>(null)
 
-	const { webApp } = useWebApp()
+	const { userMax } = useWebApp()
 
 	useEffect(() => {
-		const userMaxId = webApp?.initDataUnsafe?.user?.id
-
 		const initializeUserSession = async () => {
 			try {
 				setLoading(true)
 				console.log()
 				const response = await api.get<UserDTO>(
-					`/users/me?user_id=${userMaxId}`
+					`/users/me?user_id=${userMax.id}`
 				)
 				setUser(response.data)
 				if (response.data.role != null) {
@@ -54,7 +52,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		}
 
 		initializeUserSession()
-	}, [webApp])
+	}, [userMax])
 
 	const updateUserRole = useCallback(
 		async (role: UserRole) => {

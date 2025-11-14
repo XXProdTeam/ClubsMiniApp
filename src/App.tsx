@@ -8,15 +8,6 @@ import Header from './components/Header'
 import EventDiscoveryPage from './pages/EventDiscoveryPage'
 import { useAuth } from './contexts/AuthContext'
 
-import('eruda')
-	.then(({ default: eruda }) => {
-		eruda.init()
-		console.log('Eruda initialized.')
-	})
-	.catch(error => {
-		console.error('Failed to load Eruda:', error)
-	})
-
 const App = () => {
 	const { user } = useAuth()
 	return (
